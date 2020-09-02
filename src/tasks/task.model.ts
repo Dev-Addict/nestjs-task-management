@@ -1,7 +1,8 @@
 interface Task {
   id: string;
   title: string;
-  status: TaskStatus
+  description: string;
+  status: TaskStatus;
 }
 
 export enum TaskStatus {
