@@ -2,8 +2,7 @@ import { EntityRepository, Repository } from 'typeorm';
 
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { PublicUserDto } from '../tasks/dto/public-user.dto';
-import { bcryptConfig } from '../config/bcrypt.config';
+import { PublicUserDto } from './dto/public-user.dto';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<PublicUserDto> {
