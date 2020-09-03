@@ -16,4 +16,8 @@ export class AuthService {
   signUp(authCredentialsDto: AuthCredentialsDto): Promise<PublicUserDto> {
     return this.userRepository.signUp(authCredentialsDto);
   }
+
+  signIn(authCredentialsDto: AuthCredentialsDto): Promise<PublicUserDto> {
+    return this.userRepository.signIn(authCredentialsDto);
+  }
 }

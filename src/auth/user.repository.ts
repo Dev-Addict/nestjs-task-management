@@ -4,10 +4,10 @@ import { EntityRepository, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { PublicUserDto } from './dto/public-user.dto';
-import { ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 
 @EntityRepository(User)
-export class UserRepository extends Repository<PublicUserDto> {
+export class UserRepository extends Repository<User> {
   async signUp(authCredentialsDto: AuthCredentialsDto) {
     const { username, password } = authCredentialsDto;
 
@@ -21,7 +21,7 @@ export class UserRepository extends Repository<PublicUserDto> {
 
     try {
       await user.save();
-    } catch ({code}) {
+    } catch ({ code }) {
       if (code === 23505)
         throw new ConflictException('Username already exists');
       throw new InternalServerErrorException();
@@ -37,5 +37,16 @@ export class UserRepository extends Repository<PublicUserDto> {
 
   private async hashPassword(password: string, salt: string): Promise<string> {
     return await bcrypt.hash(password, salt);
+  }
+
+  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<PublicUserDto> {
+    const { username, password } = authCredentialsDto;
+
+    const user = await this.findOne({username});
+
+    if (user && await user.validatePassword(password))
+      return {id: user.id, username: user.username};
+
+    throw new BadRequestException('wrong username or password.');
   }
 }
