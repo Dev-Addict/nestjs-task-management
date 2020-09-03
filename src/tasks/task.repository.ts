@@ -5,11 +5,12 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './task-status.enum';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { NotFoundException } from '@nestjs/common';
+import { TasksFilterDto } from './dto/tasks-filter.dto';
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    const {title, description} = createTaskDto;
+    const { title, description } = createTaskDto;
 
     const task = new Task();
 
@@ -23,7 +24,7 @@ export class TaskRepository extends Repository<Task> {
   }
 
   async updateTask(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    const {title, description, status} = updateTaskDto;
+    const { title, description, status } = updateTaskDto;
 
     const task = await this.findOne(id);
 
@@ -40,5 +41,19 @@ export class TaskRepository extends Repository<Task> {
     await task.save();
 
     return task;
+  }
+
+  async getTasks(filterDto: TasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+
+    const query = this.createQueryBuilder('task');
+
+    if (status)
+      query.andWhere('task.status = :status', { status });
+
+    if (search)
+      query.andWhere('task.title LIKE :search OR task.description LIKE :search', { search: `%${search}%` });
+
+    return query.getMany();
   }
 }

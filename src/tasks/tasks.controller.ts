@@ -6,7 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
+  Post, Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +16,7 @@ import { Task } from './task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskValidationPipe } from './pipes/task-validation.pipe';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksFilterDto } from './dto/tasks-filter.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -46,5 +47,10 @@ export class TasksController {
     @Body(TaskValidationPipe) updateTaskDto: UpdateTaskDto
   ): Promise<Task> {
     return this.tasksService.updateTask(id, updateTaskDto);
+  }
+
+  @Get()
+  getTasks(@Query(ValidationPipe) filterDto: TasksFilterDto): Promise<Task[]> {
+    return this.tasksService.getTasks(filterDto);
   }
 }
