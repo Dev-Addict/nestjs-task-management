@@ -1,4 +1,4 @@
-interface Task {
+export interface Task {
   id: string;
   title: string;
   description: string;
@@ -10,5 +10,3 @@ export enum TaskStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE'
 }
-
-export default Task;
