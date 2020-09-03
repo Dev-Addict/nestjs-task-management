@@ -1,10 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import { EntityRepository, Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { PublicUserDto } from './dto/public-user.dto';
 import { BadRequestException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { JwtPayload } from './jwt-payload.interface';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -39,13 +41,21 @@ export class UserRepository extends Repository<User> {
     return await bcrypt.hash(password, salt);
   }
 
-  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<PublicUserDto> {
+  async signIn(authCredentialsDto: AuthCredentialsDto, jwtService: JwtService): Promise<PublicUserDto> {
     const { username, password } = authCredentialsDto;
 
     const user = await this.findOne({username});
 
-    if (user && await user.validatePassword(password))
-      return {id: user.id, username: user.username};
+    if (user && await user.validatePassword(password)) {
+      const payload: JwtPayload = {
+        id: user.id,
+        username: user.username
+      };
+
+      const token = jwtService.sign(payload);
+
+      return { id: user.id, username: user.username, token };
+    }
 
     throw new BadRequestException('wrong username or password.');
   }
